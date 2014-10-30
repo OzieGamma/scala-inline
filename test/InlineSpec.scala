@@ -4,8 +4,14 @@ import org.scalatest.{ FlatSpec, ShouldMatchers }
 import ch.epfl.inline._
 
 class InlineSpec extends FlatSpec with ShouldMatchers {
-  "Inline" should "work with simple values" in {
-    val x = List(1, 2, 3) with Inline
+
+  "inlineLift" should "work on simple inlines values" in {
+
+    treeString(inlineLift(Inline(40))) should be("""Typed(Literal(Constant(40)), TypeTree())""")
+  }
+
+  /* "Inline" should "work with simple values" in {
+    val x = List(1, 2, 3)
     x should be(List(1, 2, 3))
   }
 
@@ -28,6 +34,7 @@ class InlineSpec extends FlatSpec with ShouldMatchers {
         case 2 => "Yey!"
         _ => "Nope!"
       }
+
 
       treeString(sinline(myDef(2))) should be("""Typed(Literal(Constant("Yey!")), TypeTree())""")
   }
@@ -52,4 +59,13 @@ class InlineSpec extends FlatSpec with ShouldMatchers {
     treeString(sinline(myDef(101010))) should be("""Typed(Literal(Constant(101010)), TypeTree())""")
   }
 
+  it should "be able to inline defs within defs" in {
+    def myDef1(a: Int with Inline) =
+      if(a >= 3) myDef2(42) else myDef2(89)
+    def myDef2(b: Int with Inline) =
+      b
+
+    treeString(sinline(myDef1(2))) should be("""Typed(Literal(Constant(89)), TypeTree())""")
+    treeString(sinline(myDef1(15))) should be("""Typed(Literal(Constant(42)), TypeTree())""")
+  } */
 }
